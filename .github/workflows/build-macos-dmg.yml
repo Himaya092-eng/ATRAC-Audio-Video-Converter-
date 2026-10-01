@@ -17,41 +17,53 @@ jobs:
         with:
           python-version: '3.13'
 
-      - name: Install dependencies
+      - name: Install Python dependencies
         shell: bash
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install pyinstaller
+          pip install pyinstaller customtkinter tkinterdnd2 ytmusicapi certifi pillow
 
-      - name: Find application entry point
+      - name: Verify application source
         shell: bash
         run: |
-          echo "Repository files:"
-          find . -maxdepth 2 -type f | sort
-          ENTRY=$(find . -maxdepth 2 -type f \( -name 'main.py' -o -name 'app.py' -o -name 'main_*.py' \) | head -n 1)
-          if [ -z "$ENTRY" ]; then
-            echo "No Python application entry point found. Upload the application source files first."
+          test -f ATRAC_UI_v31_38_UNIFIED.pyw
+          test -f ATRAC_Converter_mac.spec
+          echo "Application source and macOS spec found."
+
+      - name: Build macOS app with PyInstaller
+        shell: bash
+        run: |
+          pyinstaller --clean --noconfirm ATRAC_Converter_mac.spec
+
+      - name: Locate app bundle
+        shell: bash
+        run: |
+          find dist -maxdepth 3 -name '*.app' -print
+          APP=$(find dist -maxdepth 3 -name '*.app' -print -quit)
+          if [ -z "$APP" ]; then
+            echo "PyInstaller did not create a macOS .app bundle."
+            find dist -maxdepth 3 -print
             exit 1
           fi
-          echo "ENTRY=$ENTRY" >> "$GITHUB_ENV"
-
-      - name: Build macOS app
-        shell: bash
-        run: |
-          pyinstaller --windowed --name "ATRAC Audio Converter" "$ENTRY"
+          echo "APP=$APP" >> "$GITHUB_ENV"
 
       - name: Create DMG
         shell: bash
         run: |
+          rm -rf dmg-root
           mkdir -p dmg-root
-          cp -R "dist/ATRAC Audio Converter.app" dmg-root/
-          ln -s /Applications dmg-root/Applications
-          hdiutil create -volname "ATRAC Audio Converter" -srcfolder dmg-root -ov -format UDZO "ATRAC Audio Converter.dmg"
+          cp -R "$APP" "dmg-root/"
+          ln -s /Applications "dmg-root/Applications"
+          hdiutil create \
+            -volname "ATRAC Audio Converter" \
+            -srcfolder dmg-root \
+            -ov \
+            -format UDZO \
+            "ATRAC_Audio_Converter.dmg"
 
       - name: Upload DMG artifact
         uses: actions/upload-artifact@v4
         with:
           name: ATRAC-Audio-Converter-macOS-DMG
-          path: "ATRAC Audio Converter.dmg"
+          path: ATRAC_Audio_Converter.dmg
           if-no-files-found: error
