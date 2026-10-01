@@ -39,11 +39,12 @@ jobs:
         shell: bash
         run: |
           set -e
-          rm -rf "dist/ATRAC Audio Converter.app"
-          mkdir -p "dist/ATRAC Audio Converter.app/Contents/MacOS"
-          mkdir -p "dist/ATRAC Audio Converter.app/Contents/Resources"
-          cp -R dist/ATRAC_Converter/. "dist/ATRAC Audio Converter.app/Contents/MacOS/"
-          cat > "dist/ATRAC Audio Converter.app/Contents/Info.plist" <<'PLIST'
+          APP="dist/ATRAC Audio Converter.app"
+          rm -rf "$APP"
+          mkdir -p "$APP/Contents/MacOS"
+          mkdir -p "$APP/Contents/Resources"
+          cp -R dist/ATRAC_Converter/. "$APP/Contents/MacOS/"
+          cat > "$APP/Contents/Info.plist" <<'PLIST'
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
@@ -71,8 +72,8 @@ jobs:
           </dict>
           </plist>
           PLIST
-          chmod +x "dist/ATRAC Audio Converter.app/Contents/MacOS/ATRAC_Converter"
-          echo "APP=dist/ATRAC Audio Converter.app" >> "$GITHUB_ENV"
+          chmod +x "$APP/Contents/MacOS/ATRAC_Converter"
+          echo "APP=$APP" >> "$GITHUB_ENV"
           test -x "$APP/Contents/MacOS/ATRAC_Converter"
           test -f "$APP/Contents/Info.plist"
           echo "Created $APP"
