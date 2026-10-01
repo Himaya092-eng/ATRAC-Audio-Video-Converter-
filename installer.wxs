@@ -4,7 +4,6 @@
     <Package InstallerVersion="500" Compressed="yes" InstallScope="perMachine" Platform="x64" />
     <MajorUpgrade DowngradeErrorMessage="A newer version of ATRAC Audio Video Converter is already installed." />
     <MediaTemplate EmbedCab="yes" />
-
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFiles64Folder">
         <Directory Id="INSTALLFOLDER" Name="ATRAC Audio Video Converter" />
@@ -14,23 +13,19 @@
       </Directory>
       <Directory Id="DesktopFolder" />
     </Directory>
-
     <Feature Id="MainFeature" Title="ATRAC Audio Video Converter" Level="1">
       <ComponentGroupRef Id="AppFiles" />
       <ComponentRef Id="ApplicationShortcut" />
+      <ComponentRef Id="DesktopShortcutComponent" />
     </Feature>
-
     <Component Id="ApplicationShortcut" Directory="ApplicationProgramsFolder" Guid="*">
       <Shortcut Id="StartMenuShortcut" Name="ATRAC Audio Video Converter" Target="[INSTALLFOLDER]ATRAC_Converter.exe" WorkingDirectory="INSTALLFOLDER" />
       <RemoveFolder Id="RemoveApplicationProgramsFolder" On="uninstall" />
       <RegistryValue Root="HKCU" Key="Software\ATRAC\ATRAC Audio Video Converter" Name="installed" Type="integer" Value="1" KeyPath="yes" />
     </Component>
-
     <Component Id="DesktopShortcutComponent" Directory="DesktopFolder" Guid="*">
       <Shortcut Id="DesktopShortcut" Name="ATRAC Audio Video Converter" Target="[INSTALLFOLDER]ATRAC_Converter.exe" WorkingDirectory="INSTALLFOLDER" />
       <RegistryValue Root="HKCU" Key="Software\ATRAC\ATRAC Audio Video Converter" Name="desktopShortcut" Type="integer" Value="1" KeyPath="yes" />
     </Component>
-
-    <Property Id="ARPPRODUCTICON" Value="ATRAC_Converter.exe" />
   </Product>
 </Wix>
