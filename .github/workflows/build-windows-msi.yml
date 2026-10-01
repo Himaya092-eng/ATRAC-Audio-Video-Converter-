@@ -1,0 +1,67 @@
+name: Build Windows MSI
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'ATRAC_UI_v31_38_UNIFIED.pyw'
+      - 'installer.wxs'
+      - '.github/workflows/build-windows-msi.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  build-msi:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Install Python dependencies
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pyinstaller customtkinter tkinterdnd2 pillow mutagen ytmusicapi certifi yt-dlp
+
+      - name: Build Windows application
+        shell: pwsh
+        run: |
+          Remove-Item -Recurse -Force build,dist -ErrorAction SilentlyContinue
+          pyinstaller --clean --noconfirm --windowed --name ATRAC_Converter ATRAC_UI_v31_38_UNIFIED.pyw
+          if (!(Test-Path 'dist\ATRAC_Converter\ATRAC_Converter.exe')) { throw 'ATRAC_Converter.exe was not created.' }
+
+      - name: Install WiX Toolset 3.14
+        shell: pwsh
+        run: |
+          choco install wixtoolset --version=3.14.0 -y --no-progress
+          $wix = Get-ChildItem 'C:\Program Files (x86)\WiX Toolset*' -Directory | Sort-Object Name -Descending | Select-Object -First 1
+          if (!$wix) { throw 'WiX Toolset was not found.' }
+          "$($wix.FullName)\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Harvest application files
+        shell: pwsh
+        run: |
+          heat dir 'dist\ATRAC_Converter' -cg AppFiles -dr INSTALLFOLDER -gg -srd -sfrag -sreg -var var.SourceDir -out harvested.wxs
+
+      - name: Build MSI
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path installer_output | Out-Null
+          candle -arch x64 -dSourceDir="$((Resolve-Path 'dist\ATRAC_Converter').Path)" installer.wxs harvested.wxs
+          light -ext WixUIExtension -o installer_output\ATRAC_Audio_Video_Converter.msi installer.wixobj harvested.wixobj
+          if (!(Test-Path 'installer_output\ATRAC_Audio_Video_Converter.msi')) { throw 'MSI was not created.' }
+
+      - name: Upload MSI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ATRAC-Audio-Video-Converter-Windows-MSI
+          path: installer_output\ATRAC_Audio_Video_Converter.msi
+          if-no-files-found: error
