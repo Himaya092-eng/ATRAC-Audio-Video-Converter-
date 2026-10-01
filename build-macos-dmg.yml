@@ -1,0 +1,101 @@
+name: Build macOS DMG
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'macos-*'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+
+      - name: Install macOS tools
+        run: |
+          brew update
+          brew install ffmpeg deno create-dmg
+          python -m pip install --upgrade pip
+          python -m pip install pyinstaller customtkinter tkinterdnd2 pillow mutagen ytmusicapi certifi yt-dlp
+
+      - name: Prepare helper binaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p mac_tools
+          cp "$(brew --prefix)/bin/ffmpeg" mac_tools/ffmpeg
+          cp "$(brew --prefix)/bin/ffprobe" mac_tools/ffprobe
+          cp "$(brew --prefix)/bin/ffplay" mac_tools/ffplay
+          cp "$(brew --prefix)/bin/deno" mac_tools/deno
+          cp "$(python -c 'import shutil; print(shutil.which("yt-dlp"))')" mac_tools/yt-dlp
+          chmod +x mac_tools/*
+
+      - name: Build app with PyInstaller
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf build dist
+          pyinstaller --clean --noconfirm ATRAC_Converter_mac.spec
+          test -d dist/ATRAC_Converter
+          test -x dist/ATRAC_Converter/ATRAC_Converter
+
+      - name: Create Applications link and DMG
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf dmg_root ATRAC_Audio_Converter.dmg
+          mkdir -p dmg_root/Applications
+          cp -R dist/ATRAC_Converter dmg_root/ATRAC\ Audio\ Converter.app
+          # PyInstaller COLLECT is a directory; turn it into a normal .app bundle.
+          mkdir -p "dmg_root/ATRAC Audio Converter.app/Contents/MacOS"
+          mkdir -p "dmg_root/ATRAC Audio Converter.app/Contents/Resources"
+          mv "dmg_root/ATRAC Audio Converter.app/ATRAC_Converter" "dmg_root/ATRAC Audio Converter.app/Contents/MacOS/ATRAC_Converter"
+          find "dmg_root/ATRAC Audio Converter.app" -maxdepth 1 -mindepth 1 ! -name Contents -exec rm -rf {} +
+          find dist/ATRAC_Converter -mindepth 1 -maxdepth 1 ! -name ATRAC_Converter -exec cp -R {} "dmg_root/ATRAC Audio Converter.app/Contents/MacOS/" \;
+          cat > "dmg_root/ATRAC Audio Converter.app/Contents/Info.plist" <<'PLIST'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>CFBundleDisplayName</key><string>ATRAC Audio Converter</string>
+            <key>CFBundleExecutable</key><string>ATRAC_Converter</string>
+            <key>CFBundleIdentifier</key><string>com.atrac.audio-converter</string>
+            <key>CFBundleName</key><string>ATRAC Audio Converter</string>
+            <key>CFBundlePackageType</key><string>APPL</string>
+            <key>CFBundleShortVersionString</key><string>3.2.34</string>
+            <key>CFBundleVersion</key><string>3.2.34</string>
+            <key>LSMinimumSystemVersion</key><string>12.0</string>
+            <key>NSHighResolutionCapable</key><true/>
+          </dict>
+          </plist>
+          PLIST
+          ln -s /Applications dmg_root/Applications/Applications
+          create-dmg \
+            --volname "ATRAC Audio Converter" \
+            --window-size 720 440 \
+            --icon-size 96 \
+            --icon "ATRAC Audio Converter.app" 220 180 \
+            --icon "Applications" 500 180 \
+            --hide-extension "ATRAC Audio Converter.app" \
+            --hide-extension "Applications" \
+            "ATRAC_Audio_Converter.dmg" \
+            dmg_root
+
+      - name: Upload DMG artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ATRAC-Audio-Converter-macOS
+          path: ATRAC_Audio_Converter.dmg
+          if-no-files-found: error
