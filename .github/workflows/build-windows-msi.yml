@@ -91,7 +91,7 @@ jobs:
           candle -arch x64 -dSourceDir="$src" installer.wxs harvested.wxs
           light -ext WixUIExtension -cultures:ja-jp -o installer_output\ATRAC_Converter_ja-JP.msi installer.wixobj harvested.wixobj
           # Build English edition with Windows Installer product language 1033.
-          (Get-Content installer.wxs -Raw).Replace('Language="1041"', 'Language="1033"') | Set-Content -Path installer-en.wxs -Encoding utf8
+          (Get-Content installer.wxs -Raw).Replace('Language="1041"', 'Language="1033"').Replace('installer-license-ja.rtf', 'installer-license-en.rtf') | Set-Content -Path installer-en.wxs -Encoding utf8
           candle -arch x64 -dSourceDir="$src" installer-en.wxs
           light -ext WixUIExtension -cultures:en-us -o installer_output\ATRAC_Converter_en-US.msi installer-en.wixobj harvested.wixobj
           if (!(Test-Path 'installer_output\ATRAC_Converter_ja-JP.msi')) { throw 'Japanese MSI was not created.' }
