@@ -39,7 +39,7 @@ ATRAC Audio Video Converterは、音楽・動画の形式変換や音声タグ�
 かつて家族のデリカで聴いていた456曲を再び聴きたい、という思いから始まりました。初期のUIのないPythonスクリプトから、GUIを備えたコンバーターへと発展しました。
 
 ### 不具合報告
-問題がある場合は [GitHub Issues](https://github.com/wadahiromi0922-eng/ATRAC-Audio-Video-Converter-/issues) に、OS・アプリのバージョン・操作手順・エラー内容を書いてください。個人情報や著作権保護された音源は投稿しないでください。
+問題がある場合は [GitHub Issues](https://github.com/Himaya092-eng/ATRAC-Audio-Video-Converter-/issues) に、OS・アプリのバージョン・操作手順・エラー内容を書いてください。個人情報や著作権保護された音源は投稿しないでください。
 
 ---
 
@@ -67,7 +67,7 @@ Compatibility varies by source file and build. Some protected or proprietary AT3
 Installer behavior has not yet been comprehensively verified on real devices. Keep backups of important files.
 
 ### Report issues
-Use [GitHub Issues](https://github.com/wadahiromi0922-eng/ATRAC-Audio-Video-Converter-/issues). Include your OS, app version, steps to reproduce, and error message. Do not upload private data or copyrighted audio files.
+Use [GitHub Issues](https://github.com/Himaya092-eng/ATRAC-Audio-Video-Converter-/issues). Include your OS, app version, steps to reproduce, and error message. Do not upload private data or copyrighted audio files.
 
 ---
 
