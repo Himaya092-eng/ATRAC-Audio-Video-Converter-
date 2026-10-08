@@ -101,5 +101,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ATRAC-Audio-Video-Converter-Windows-MSI
-          path: installer_output\ATRAC_Audio_Video_Converter.msi
+          path: installer_output/*.msi
           if-no-files-found: error
