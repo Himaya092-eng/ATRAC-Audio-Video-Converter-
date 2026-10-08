@@ -87,9 +87,15 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path installer_output | Out-Null
-          candle -arch x64 -dSourceDir="$((Resolve-Path 'dist\ATRAC_Converter').Path)" installer.wxs harvested.wxs
-          light -ext WixUIExtension -cultures:ja-jp -o installer_output\ATRAC_Audio_Video_Converter.msi installer.wixobj harvested.wixobj
-          if (!(Test-Path 'installer_output\ATRAC_Audio_Video_Converter.msi')) { throw 'MSI was not created.' }
+          $src = (Resolve-Path 'dist\ATRAC_Converter').Path
+          candle -arch x64 -dSourceDir="$src" installer.wxs harvested.wxs
+          light -ext WixUIExtension -cultures:ja-jp -o installer_output\ATRAC_Converter_ja-JP.msi installer.wixobj harvested.wixobj
+          # Build English edition with Windows Installer product language 1033.
+          (Get-Content installer.wxs -Raw).Replace('Language="1041"', 'Language="1033"') | Set-Content -Path installer-en.wxs -Encoding utf8
+          candle -arch x64 -dSourceDir="$src" installer-en.wxs
+          light -ext WixUIExtension -cultures:en-us -o installer_output\ATRAC_Converter_en-US.msi installer-en.wixobj harvested.wixobj
+          if (!(Test-Path 'installer_output\ATRAC_Converter_ja-JP.msi')) { throw 'Japanese MSI was not created.' }
+          if (!(Test-Path 'installer_output\ATRAC_Converter_en-US.msi')) { throw 'English MSI was not created.' }
 
       - name: Upload MSI artifact
         uses: actions/upload-artifact@v4
