@@ -125,7 +125,7 @@ jobs:
           p=Path("distribution.xml")
           s=p.read_text()
           s=s.replace("<installer-gui-script", "<installer-gui-script", 1)
-          s=s.replace("</installer-gui-script>", '  <license file="License.txt"/>\\n</installer-gui-script>')
+          s=s.replace("</installer-gui-script>", '  <license file="License.txt"/>\n</installer-gui-script>')
           p.write_text(s)
           PY
           productbuild --distribution distribution.xml --resources pkg-resources --package-path . ATRAC_Audio_Converter_Installer.pkg
