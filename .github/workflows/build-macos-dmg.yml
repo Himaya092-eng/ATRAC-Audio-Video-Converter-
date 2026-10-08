@@ -95,6 +95,49 @@ jobs:
           test -f "ATRAC_Audio_Converter.dmg"
           ls -lh "ATRAC_Audio_Converter.dmg"
 
+      - name: Create bilingual PKG installer
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p pkg-resources/ja.lproj pkg-resources/en.lproj
+          cat > pkg-resources/ja.lproj/License.txt <<'EOF'
+          ATRAC Audio Converter 利用規約（草案）
+          このソフトは音声・動画変換およびタグ編集のために提供されます。
+          利用権限を持つファイルにのみ使用し、第三者の権利を尊重してください。
+          変換前に大切なファイルをバックアップしてください。
+          本ソフトは現状有姿で提供されます。法律上排除できない権利は制限しません。
+          正式公開前に配布者がこの規約を確認してください。
+          EOF
+          cat > pkg-resources/en.lproj/License.txt <<'EOF'
+          ATRAC Audio Converter Terms of Use (Draft)
+          This software is provided for audio/video conversion and metadata editing.
+          Use it only with files you have permission to process. Respect third-party rights.
+          Back up important files before converting.
+          This software is provided as is. Rights that cannot legally be excluded are unaffected.
+          The distributor must review these terms before public release.
+          EOF
+          mkdir -p pkg-root/Applications
+          cp -R "$APP" pkg-root/Applications/
+          pkgbuild --root pkg-root --identifier com.wadahiromi.atracaudioconverter --version 1.0 --install-location / ATRAC_Component.pkg
+          productbuild --synthesize --package ATRAC_Component.pkg distribution.xml
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path("distribution.xml")
+          s=p.read_text()
+          s=s.replace("<installer-gui-script", "<installer-gui-script", 1)
+          s=s.replace("</installer-gui-script>", '  <license file="License.txt"/>\\n</installer-gui-script>')
+          p.write_text(s)
+          PY
+          productbuild --distribution distribution.xml --resources pkg-resources --package-path . ATRAC_Audio_Converter_Installer.pkg
+          test -s ATRAC_Audio_Converter_Installer.pkg
+
+      - name: Upload PKG artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ATRAC-Audio-Converter-macOS-PKG
+          path: ATRAC_Audio_Converter_Installer.pkg
+          if-no-files-found: error
+
       - name: Upload DMG artifact
         uses: actions/upload-artifact@v4
         with:
