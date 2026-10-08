@@ -68,6 +68,18 @@ jobs:
             $reg.SetAttribute('KeyPath', 'yes')
             [void]$component.AppendChild($reg)
           }
+          # ICE64: explicitly remove every harvested user-profile directory on uninstall.
+          $dirs = $doc.SelectNodes('//w:Directory', $ns)
+          foreach ($dir in $dirs) {
+            $dirId = $dir.GetAttribute('Id')
+            $target = $dir.SelectSingleNode('.//w:Component', $ns)
+            if (!$target -or !$dirId) { continue }
+            $remove = $doc.CreateElement('RemoveFolder', 'http://schemas.microsoft.com/wix/2006/wi')
+            $remove.SetAttribute('Id', 'Rm' + $dirId)
+            $remove.SetAttribute('Directory', $dirId)
+            $remove.SetAttribute('On', 'uninstall')
+            [void]$target.AppendChild($remove)
+          }
           $doc.Save((Join-Path (Get-Location) 'harvested.wxs'))
 
 
