@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Product Id="*" Name="ATRAC Audio Video Converter" Language="1041" Version="3.2.34" Manufacturer="ATRAC" UpgradeCode="B7E2C1A4-5D3F-4C8E-9A61-0A7AC0032034">
-    <Package InstallerVersion="500" Compressed="yes" InstallScope="perMachine" Platform="x64" />
+    <Package InstallerVersion="500" Compressed="yes" InstallScope="perUser" InstallPrivileges="limited" Platform="x64" />
     <MajorUpgrade DowngradeErrorMessage="A newer version of ATRAC Audio Video Converter is already installed." />
     <MediaTemplate EmbedCab="yes" />
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+    <UIRef Id="WixUI_InstallDir" />
     <Directory Id="TARGETDIR" Name="SourceDir">
-      <Directory Id="ProgramFiles64Folder">
+      <Directory Id="LocalAppDataFolder">
         <Directory Id="INSTALLFOLDER" Name="ATRAC Audio Video Converter" />
       </Directory>
       <Directory Id="ProgramMenuFolder">
