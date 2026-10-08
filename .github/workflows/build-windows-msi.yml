@@ -88,7 +88,7 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path installer_output | Out-Null
           candle -arch x64 -dSourceDir="$((Resolve-Path 'dist\ATRAC_Converter').Path)" installer.wxs harvested.wxs
-          light -ext WixUIExtension -o installer_output\ATRAC_Audio_Video_Converter.msi installer.wixobj harvested.wixobj
+          light -ext WixUIExtension -cultures:ja-jp -o installer_output\ATRAC_Audio_Video_Converter.msi installer.wixobj harvested.wixobj
           if (!(Test-Path 'installer_output\ATRAC_Audio_Video_Converter.msi')) { throw 'MSI was not created.' }
 
       - name: Upload MSI artifact
