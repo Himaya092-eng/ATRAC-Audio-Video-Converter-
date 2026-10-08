@@ -1,0 +1,16 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="ATRAC Audio Video Converter" Manufacturer="ATRAC Converter" Version="3.2.34" UpgradeCode="8E183B0A-3A6B-4CB5-8D4B-B01DC69C57AB" Scope="perMachine">
+    <MajorUpgrade DowngradeErrorMessage="A newer version is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="ATRAC Audio Converter">
+        <Component Id="MainExecutable" Guid="*">
+          <File Id="MainExe" Source="dist/ATRAC_Converter.exe" KeyPath="yes" />
+        </Component>
+      </Directory>
+    </StandardDirectory>
+    <Feature Id="Main" Title="ATRAC Audio Converter" Level="1">
+      <ComponentRef Id="MainExecutable" />
+    </Feature>
+  </Package>
+</Wix>
