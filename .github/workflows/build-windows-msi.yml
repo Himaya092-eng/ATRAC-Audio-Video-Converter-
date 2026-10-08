@@ -50,6 +50,26 @@ jobs:
         shell: pwsh
         run: |
           heat dir 'dist\ATRAC_Converter' -cg AppFiles -dr INSTALLFOLDER -gg -srd -sfrag -sreg -var var.SourceDir -out harvested.wxs
+          # Per-user MSI requires HKCU registry KeyPaths for components in LocalAppDataFolder.
+          [xml]$doc = Get-Content 'harvested.wxs' -Raw
+          $ns = New-Object System.Xml.XmlNamespaceManager($doc.NameTable)
+          $ns.AddNamespace('w', 'http://schemas.microsoft.com/wix/2006/wi')
+          $components = $doc.SelectNodes('//w:Component', $ns)
+          foreach ($component in $components) {
+            foreach ($node in $component.SelectNodes('./w:File', $ns)) {
+              if ($node.HasAttribute('KeyPath')) { $node.RemoveAttribute('KeyPath') }
+            }
+            $reg = $doc.CreateElement('RegistryValue', 'http://schemas.microsoft.com/wix/2006/wi')
+            $reg.SetAttribute('Root', 'HKCU')
+            $reg.SetAttribute('Key', 'Software\ATRAC\ATRAC Audio Video Converter\Components')
+            $reg.SetAttribute('Name', $component.GetAttribute('Id'))
+            $reg.SetAttribute('Type', 'integer')
+            $reg.SetAttribute('Value', '1')
+            $reg.SetAttribute('KeyPath', 'yes')
+            [void]$component.AppendChild($reg)
+          }
+          $doc.Save((Join-Path (Get-Location) 'harvested.wxs'))
+
 
       - name: Build MSI
         shell: pwsh
