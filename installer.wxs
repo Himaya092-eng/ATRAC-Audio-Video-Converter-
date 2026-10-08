@@ -6,7 +6,7 @@
     <MediaTemplate EmbedCab="yes" />
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
     <UIRef Id="WixUI_InstallDir" />
-    <WixVariable Id="WixUILicenseRtf" Value="installer-license-bilingual.rtf" />
+    <WixVariable Id="WixUILicenseRtf" Value="installer-license-ja.rtf" />
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="LocalAppDataFolder">
         <Directory Id="INSTALLFOLDER" Name="ATRAC Audio Video Converter" />
