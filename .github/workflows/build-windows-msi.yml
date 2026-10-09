@@ -6,6 +6,7 @@ on:
     paths:
       - 'ATRAC_UI_v31_38_UNIFIED.pyw'
       - 'installer.wxs'
+      - 'ATRAC_Converter_icon.py'
       - '.github/workflows/build-windows-msi.yml'
 
 permissions:
@@ -30,11 +31,30 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install pyinstaller customtkinter tkinterdnd2 pillow mutagen ytmusicapi certifi yt-dlp
 
+      - name: Install FFmpeg and prepare app icon
+        shell: pwsh
+        run: |
+          choco install ffmpeg -y --no-progress
+          python ATRAC_Converter_icon.py
+          if (!(Test-Path 'ATRAC_v30.ico')) { throw 'Icon generation failed' }
+          $ffmpeg = (Get-Command ffmpeg.exe -ErrorAction Stop).Source
+          $ffprobe = (Get-Command ffprobe.exe -ErrorAction Stop).Source
+          & $ffmpeg -version
+          & $ffprobe -version
+
       - name: Build Windows application
         shell: pwsh
         run: |
           Remove-Item -Recurse -Force build,dist -ErrorAction SilentlyContinue
-          pyinstaller --clean --noconfirm --windowed --name ATRAC_Converter ATRAC_UI_v31_38_UNIFIED.pyw
+          $icon = (Resolve-Path 'ATRAC_v30.ico').Path
+          pyinstaller --clean --noconfirm --windowed --name ATRAC_Converter --icon "$icon" --add-data "ATRAC_v30.ico;." --collect-all customtkinter --collect-all tkinterdnd2 --collect-all certifi --collect-all yt_dlp --collect-all mutagen --collect-all ytmusicapi --hidden-import PIL._tkinter_finder ATRAC_UI_v31_38_UNIFIED.pyw
+          if ($LASTEXITCODE -ne 0) { throw 'PyInstaller failed' }
+          $ffmpeg = (Get-Command ffmpeg.exe -ErrorAction Stop).Source
+          $ffprobe = (Get-Command ffprobe.exe -ErrorAction Stop).Source
+          Copy-Item $ffmpeg 'dist\\ATRAC_Converter\\ffmpeg.exe' -Force
+          Copy-Item $ffprobe 'dist\\ATRAC_Converter\\ffprobe.exe' -Force
+          if (!(Test-Path 'dist\\ATRAC_Converter\\ffmpeg.exe')) { throw 'Bundled ffmpeg missing' }
+          if (!(Test-Path 'dist\\ATRAC_Converter\\ffprobe.exe')) { throw 'Bundled ffprobe missing' }
           if (!(Test-Path 'dist\ATRAC_Converter\ATRAC_Converter.exe')) { throw 'ATRAC_Converter.exe was not created.' }
 
       - name: Install WiX Toolset 3.14
