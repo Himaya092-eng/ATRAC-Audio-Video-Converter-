@@ -149,6 +149,178 @@ TXT["id"] = {
     "video_quality": "Kualitas Video", "audio_quality": "Kualitas Audio"
 }
 
+# Language selection catalog.  These entries are selectable, not verified translations.
+# English remains the fallback until each locale has reviewed translations.
+ATRAC_LANGUAGE_NAMES = {
+  "ab": "Abkhaz",
+  "ace": "Acehnese",
+  "ach": "Acholi",
+  "af": "Afrikaans",
+  "sq": "Albanian",
+  "alz": "Alur",
+  "am": "Amharic",
+  "ar": "Arabic",
+  "hy": "Armenian",
+  "as": "Assamese",
+  "awa": "Awadhi",
+  "ay": "Aymara",
+  "az": "Azerbaijani",
+  "ban": "Balinese",
+  "bm": "Bambara",
+  "ba": "Bashkir",
+  "eu": "Basque",
+  "btx": "Batak Karo",
+  "bc": "Bikol",
+  "be": "Belarusian",
+  "bem": "Bemba",
+  "bn": "Bengali",
+  "bew": "Betawi",
+  "bho": "Bhojpuri",
+  "bik": "Bikol",
+  "bs": "Bosnian",
+  "br": "Breton",
+  "bg": "Bulgarian",
+  "bua": "Buryat",
+  "yue": "Cantonese",
+  "ca": "Catalan",
+  "ceb": "Cebuano",
+  "ch": "Chamorro",
+  "ny": "Chichewa",
+  "zh-CN": "Chinese (Simplified)",
+  "zh-TW": "Chinese (Traditional)",
+  "cv": "Chuvash",
+  "co": "Corsican",
+  "crh": "Crimean Tatar",
+  "hr": "Croatian",
+  "cs": "Czech",
+  "da": "Danish",
+  "dv": "Dhivehi",
+  "din": "Dinka",
+  "doi": "Dogri",
+  "dov": "Dombe",
+  "nl": "Dutch",
+  "dyu": "Dyula",
+  "dz": "Dzongkha",
+  "en": "English",
+  "eo": "Esperanto",
+  "et": "Estonian",
+  "ee": "Ewe",
+  "fj": "Fijian",
+  "fil": "Filipino",
+  "fi": "Finnish",
+  "fr": "French",
+  "fy": "Frisian",
+  "fur": "Friulian",
+  "ff": "Fulani",
+  "gaa": "Ga",
+  "gl": "Galician",
+  "lg": "Ganda",
+  "ka": "Georgian",
+  "de": "German",
+  "el": "Greek",
+  "gn": "Guarani",
+  "gu": "Gujarati",
+  "ht": "Haitian Creole",
+  "cnh": "Hakha Chin",
+  "ha": "Hausa",
+  "haw": "Hawaiian",
+  "he": "Hebrew",
+  "hil": "Hiligaynon",
+  "hi": "Hindi",
+  "hmn": "Hmong",
+  "hu": "Hungarian",
+  "hrx": "Hunsrik",
+  "is": "Icelandic",
+  "ig": "Igbo",
+  "ilo": "Ilocano",
+  "id": "Indonesian",
+  "ga": "Irish",
+  "it": "Italian",
+  "ja": "日本語",
+  "jv": "Javanese",
+  "kn": "Kannada",
+  "pam": "Kapampangan",
+  "kk": "Kazakh",
+  "km": "Khmer",
+  "cgg": "Kiga",
+  "rw": "Kinyarwanda",
+  "ktu": "Kituba",
+  "gom": "Konkani",
+  "ko": "Korean",
+  "kri": "Krio",
+  "ku": "Kurdish (Kurmanji)",
+  "ckb": "Kurdish (Sorani)",
+  "ky": "Kyrgyz",
+  "lo": "Lao",
+  "la": "Latin",
+  "lv": "Latvian",
+  "lij": "Ligurian",
+  "li": "Limburgish",
+  "ln": "Lingala",
+  "lt": "Lithuanian",
+  "lmo": "Lombard",
+  "luo": "Luo",
+  "lb": "Luxembourgish",
+  "mk": "Macedonian",
+  "mai": "Maithili",
+  "mak": "Makassar",
+  "mg": "Malagasy",
+  "ms": "Malay",
+  "ml": "Malayalam",
+  "mt": "Maltese",
+  "mi": "Maori",
+  "mr": "Marathi",
+  "chm": "Meadow Mari",
+  "mni-Mtei": "Meiteilon",
+  "mn": "Mongolian",
+  "my": "Myanmar",
+  "ne": "Nepali",
+  "no": "Norwegian",
+  "or": "Odia",
+  "om": "Oromo",
+  "ps": "Pashto",
+  "fa": "Persian",
+  "pl": "Polish",
+  "pt": "Portuguese",
+  "pa": "Punjabi",
+  "qu": "Quechua",
+  "ro": "Romanian",
+  "ru": "Russian",
+  "sm": "Samoan",
+  "sa": "Sanskrit",
+  "gd": "Scots Gaelic",
+  "sr": "Serbian",
+  "sn": "Shona",
+  "sd": "Sindhi",
+  "si": "Sinhala",
+  "sk": "Slovak",
+  "sl": "Slovenian",
+  "so": "Somali",
+  "es": "Spanish",
+  "su": "Sundanese",
+  "sw": "Swahili",
+  "sv": "Swedish",
+  "tg": "Tajik",
+  "ta": "Tamil",
+  "tt": "Tatar",
+  "te": "Telugu",
+  "th": "Thai",
+  "ti": "Tigrinya",
+  "ts": "Tsonga",
+  "tr": "Turkish",
+  "tk": "Turkmen",
+  "uk": "Ukrainian",
+  "ur": "Urdu",
+  "ug": "Uyghur",
+  "uz": "Uzbek",
+  "vi": "Vietnamese",
+  "cy": "Welsh",
+  "xh": "Xhosa",
+  "yi": "Yiddish",
+  "yo": "Yoruba",
+  "zu": "Zulu"
+}
+
 def app_dir():
     return os.path.dirname(os.path.abspath(sys.argv[0]))
 
@@ -889,11 +1061,13 @@ class App:
                      activeforeground="white",relief="flat",bd=0,cursor="hand2",
                      font=("Segoe UI",9,"bold"),padx=8,pady=6)
         tb.pack(side="left",fill="x",expand=True,padx=(0,4))
-        lb=tk.Button(settings,text=lang_text,command=self.toggle_language,
-                     bg=p["panel2"],fg=p["text"],activebackground=p["accent"],
-                     activeforeground="white",relief="flat",bd=0,cursor="hand2",
-                     font=("Segoe UI",9,"bold"),padx=8,pady=6)
-        lb.pack(side="left",fill="x",expand=True,padx=(4,0))
+        # Scrollable native dropdown for the multilingual language catalog.
+        self._language_labels = [f"{name} [{code}]" for code,name in ATRAC_LANGUAGE_NAMES.items()]
+        self._language_label_to_code = {f"{name} [{code}]": code for code,name in ATRAC_LANGUAGE_NAMES.items()}
+        self._language_combo = ttk.Combobox(settings,values=self._language_labels,state="readonly",width=18)
+        self._language_combo.set(next((label for label,code in self._language_label_to_code.items() if code==self.lang),"English [en]"))
+        self._language_combo.bind("<<ComboboxSelected>>",self._on_language_choice)
+        self._language_combo.pack(side="left",fill="x",expand=True,padx=(4,0))
 
         self.nav={}
         navs=[
@@ -944,16 +1118,8 @@ class App:
         )
         top_theme.pack(side="right",padx=(8,0))
 
-        top_lang=tk.Button(
-            self.topbar,
-            text={"ja": "ENGLISH", "en": "INDONESIA", "id": "日本語"}.get(self.lang, "日本語"),
-            command=self.toggle_language,
-            bg=p["panel2"],fg=p["text"],
-            activebackground=p["accent"],activeforeground="white",
-            relief="flat",bd=0,cursor="hand2",
-            font=("Segoe UI",9,"bold"),padx=12,pady=6
-        )
-        top_lang.pack(side="right")
+        # Sidebar offers the full language selector; no duplicate cycling button.
+
 
         self.content=tk.Frame(right,bg=p["bg"]); self.content.pack(fill="both",expand=True,padx=24,pady=(0,22))
 
@@ -987,8 +1153,15 @@ class App:
             pass
         self._deferred_rebuild(getattr(self,"current_page","home"))
 
+    def _on_language_choice(self, _event=None):
+        label=self._language_combo.get()
+        code=self._language_label_to_code.get(label)
+        if code and code!=self.lang:
+            self.lang=code
+            self._deferred_rebuild(getattr(self,"current_page","home"))
+
     def toggle_language(self):
-        self.lang={"ja": "en", "en": "id", "id": "ja"}.get(self.lang, "ja")
+        self.lang={"ja": "en", "en": "id", "id": "ja"}.get(self.lang, "en")
         self._deferred_rebuild(getattr(self,"current_page","home"))
 
     def highlight(self,key):
