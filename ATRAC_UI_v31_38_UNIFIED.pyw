@@ -683,8 +683,7 @@ class App:
         self._library_meta_cache={}
         self._library_refresh_token=0
         self._library_refresh_after=None
-        self._ensure_library_dirs()
-        self.online_folder.set(self._library_download_dir())
+        self.online_folder.set("")
 
         self.player_files=[]
         self.player_vol=tk.DoubleVar(value=80)
@@ -899,7 +898,6 @@ class App:
         self.nav={}
         navs=[
             ("home", self.tr("home")),
-            ("library", "▣  ローカルライブラリー" if self.lang=="ja" else "▣  Local Library"),
             ("convert", "♫  音楽・動画変換" if self.lang=="ja" else "♫  Audio / Video Convert"),
             ("video_compress", "▣  動画圧縮" if self.lang=="ja" else "▣  Video Compress"),
             ("audio_compress", "♫  音声圧縮" if self.lang=="ja" else "♫  Audio Compress"),
@@ -1147,7 +1145,7 @@ class App:
         self.current_page=key
         self.clear_content(); self.highlight(key)
         if key=="home": self.page_home()
-        elif key=="library": self.page_library()
+        elif key=="library": self.page_home()
         elif key=="convert": self.page_convert()
         elif key=="video_compress": self.page_video_compress()
         elif key=="audio_compress": self.page_audio_compress()
@@ -1191,8 +1189,6 @@ class App:
             cards.grid_columnconfigure(col, weight=1, uniform="homecards")
 
         items = [
-            ("▣", "ローカルライブラリー" if self.lang=="ja" else "Local Library",
-             "ダウンロード履歴・ローカル音楽・アプリ内再生" if self.lang=="ja" else "Downloads, local music and built-in playback", "library"),
             ("♫", "音楽・動画変換" if self.lang=="ja" else "Audio / Video Convert",
              "MP3 / WAV / M4A / FLAC / MP4 など" if self.lang=="ja" else "MP3 / WAV / M4A / FLAC / MP4 and more", "convert"),
             ("▣", "動画圧縮" if self.lang=="ja" else "Video Compress",
@@ -1972,8 +1968,10 @@ class App:
                 "圧縮に成功した元動画を削除します。\n削除した元動画は元に戻せません。\n\n続けますか？"):
                 return
 
-        outdir=Path(self.video_compress_outdir.get().strip() or ".")
-        outdir.mkdir(parents=True,exist_ok=True)
+        chosen=filedialog.askdirectory(title=("動画の保存先を選択" if self.lang=="ja" else "Choose video output folder"),parent=self.root)
+        if not chosen:return
+        self.video_compress_outdir.set(chosen)
+        outdir=Path(chosen); outdir.mkdir(parents=True,exist_ok=True)
         files=list(self.video_compress_files)
         total=len(files)
         quality=self.video_compress_quality.get()
@@ -2157,7 +2155,10 @@ class App:
         delete_source=bool(self.audio_compress_delete_source.get())
         if delete_source and not messagebox.askyesno(APP_NAME,"圧縮に成功した元音声を削除します。\n削除した元音声は元に戻せません。\n\n続けますか？"):
             return
-        outdir=Path(self.audio_compress_outdir.get().strip() or "."); outdir.mkdir(parents=True,exist_ok=True)
+        chosen=filedialog.askdirectory(title=("音声の保存先を選択" if self.lang=="ja" else "Choose audio output folder"),parent=self.root)
+        if not chosen:return
+        self.audio_compress_outdir.set(chosen)
+        outdir=Path(chosen); outdir.mkdir(parents=True,exist_ok=True)
         files=list(self.audio_compress_files); total=len(files)
         fmt=self.audio_compress_format.get().upper(); bitrate=self.audio_compress_bitrate.get()
         fmt_map={
@@ -2292,7 +2293,10 @@ class App:
         delete_source=bool(self.image_compress_delete_source.get())
         if delete_source and not messagebox.askyesno(APP_NAME,"圧縮に成功した元画像を削除します。\n削除した元画像は元に戻せません。\n\n続けますか？"):
             return
-        outdir=Path(self.image_compress_outdir.get().strip() or "."); outdir.mkdir(parents=True,exist_ok=True)
+        chosen=filedialog.askdirectory(title=("画像の保存先を選択" if self.lang=="ja" else "Choose image output folder"),parent=self.root)
+        if not chosen:return
+        self.image_compress_outdir.set(chosen)
+        outdir=Path(chosen); outdir.mkdir(parents=True,exist_ok=True)
         files=list(self.image_compress_files); total=len(files)
         outfmt=self.image_compress_format.get(); quality_name=self.image_compress_quality.get(); max_size=self.image_compress_max_size.get()
         qmap={"高画質":92,"標準":82,"強く圧縮":65}; quality=qmap.get(quality_name,82)
@@ -4576,9 +4580,8 @@ class App:
         tk.Label(row,text=("サンプルレート" if self.lang=="ja" else "Sample Rate"),bg=p["panel"],fg=p["text"],font=("Segoe UI",9,"bold")).pack(side="left")
         ttk.Combobox(row,textvariable=self.online_sample_rate,state="readonly",
                      values=["元のまま","22050 Hz","32000 Hz","44100 Hz","48000 Hz","96000 Hz"],width=12).pack(side="left",padx=(6,14))
-        b=ctk.CTkButton(row,text=("ライブラリーを開く" if self.lang=="ja" else "Open Library"),command=self._library_open_root); self.style_button(b); b.pack(side="right")
 
-        self.online_folder_label=ctk.CTkLabel(c,text=self.online_folder.get().strip() or ("保存先: ATRAC Library / Downloads" if self.lang=="ja" else "Saved to: ATRAC Library / Downloads"),anchor="w",text_color=p["muted"])
+        self.online_folder_label=ctk.CTkLabel(c,text=self.online_folder.get().strip() or ("保存先は開始時に選択" if self.lang=="ja" else "Choose folder when starting"),anchor="w",text_color=p["muted"])
         self.online_folder_label.pack(fill="x",padx=18,pady=(8,0))
 
         statrow=tk.Frame(c,bg=p["panel"]); statrow.pack(fill="x",padx=18,pady=(8,4))
@@ -4626,14 +4629,13 @@ class App:
         tk.Label(row,text=self.tr("audio_quality"),bg=p["panel"],fg=p["text"],font=("Segoe UI",9,"bold")).pack(side="left")
         ttk.Combobox(row,textvariable=self.audio_quality,state="readonly",
                      values=["128 kbps","192 kbps","256 kbps","320 kbps"],width=10).pack(side="left",padx=(6,14))
-        b=ctk.CTkButton(row,text=("ライブラリーを開く" if self.lang=="ja" else "Open Library"),command=self._library_open_root); self.style_button(b); b.pack(side="right")
         self.downbtn=ctk.CTkButton(row,text=self.tr("download"),command=self.start_download,width=180); self.style_button(self.downbtn,True); self.downbtn.pack(side="right",padx=(0,8))
         try:
             if self.download_active:
                 self.downbtn.configure(state="disabled")
         except Exception:
             pass
-        self.online_folder_label=ctk.CTkLabel(c, text=self.online_folder.get().strip() or ("保存先: ATRAC Library / Downloads" if self.lang=="ja" else "Saved to: ATRAC Library / Downloads"), anchor="w", text_color=p["muted"])
+        self.online_folder_label=ctk.CTkLabel(c, text=self.online_folder.get().strip() or ("保存先は開始時に選択" if self.lang=="ja" else "Choose folder when starting"), anchor="w", text_color=p["muted"])
         self.online_folder_label.pack(fill="x", padx=18, pady=(8,0))
         statrow=tk.Frame(c,bg=p["panel"]); statrow.pack(fill="x", padx=18, pady=(8,4))
         # Reuse the persistent download status variables across page changes.
@@ -4722,11 +4724,10 @@ class App:
                      values=["128 kbps","192 kbps","256 kbps","320 kbps"],width=10).pack(side="left",padx=(6,14))
         if service!="tiktok": self._cookie_option(row,p)
 
-        b=ctk.CTkButton(row,text=("ライブラリーを開く" if self.lang=="ja" else "Open Library"),command=self._library_open_root);self.style_button(b);b.pack(side="right")
 
         self.online_folder_label=ctk.CTkLabel(
             c,
-            text=self.online_folder.get().strip() or ("保存先: ATRAC Library / Downloads" if self.lang=="ja" else "Saved to: ATRAC Library / Downloads"),
+            text=self.online_folder.get().strip() or ("保存先は開始時に選択" if self.lang=="ja" else "Choose folder when starting"),
             anchor="w",
             text_color=p["muted"]
         )
@@ -4749,11 +4750,11 @@ class App:
             pass
 
     def pick_online(self):
-        p=self._library_download_dir()
-        self.online_folder.set(p)
-        if hasattr(self,"online_folder_label"):
-            self.online_folder_label.configure(text=p)
-        self._library_open_root()
+        p=filedialog.askdirectory(title=("保存先を選択" if self.lang=="ja" else "Choose destination"),parent=self.root)
+        if p:
+            self.online_folder.set(p)
+            if hasattr(self,"online_folder_label"):
+                self.online_folder_label.configure(text=p)
 
     def _youtube_music_search_url(self, query):
         q=str(query or "").strip()
@@ -4881,9 +4882,9 @@ class App:
             else:
                 self._dl_meta_list=None
 
-            # TuneFab-style library behaviour: downloads go straight into the app library.
-            # No save-location dialog is required for every download.
-            folder=self._library_download_dir()
+            folder=filedialog.askdirectory(title=("ダウンロード保存先を選択" if self.lang=="ja" else "Choose download destination"),parent=self.root)
+            if not folder:
+                return
             self.online_folder.set(folder)
             if hasattr(self,"online_folder_label"):
                 try:self.online_folder_label.configure(text=folder)
@@ -5651,7 +5652,7 @@ class App:
         # Spotify track links are converted on the UI thread to ytsearch1:TITLE.
         # Episodes may still arrive as open.spotify.com URLs.
         download_url=url
-        allow_playlist=bool(is_youtube and ("list=" in low or "/playlist" in low))
+        allow_playlist=False  # Single video per URL, never implicit playlist
         playlist_meta=None
         if allow_playlist:
             try:
@@ -5671,6 +5672,7 @@ class App:
 
         cmd=[
             ytdlp,
+            "--no-playlist",
             "--newline",
             "--no-color",
             "--progress-template",
@@ -5694,8 +5696,7 @@ class App:
         else:
             out_tmpl=os.path.join(folder,"%(title)s.%(ext)s")
         cmd += ["-o", out_tmpl]
-        if not allow_playlist:
-            cmd.append("--no-playlist")
+        # --no-playlist is unconditional.
 
         if ff:
             ff_dir=os.path.dirname(os.path.abspath(ff))
