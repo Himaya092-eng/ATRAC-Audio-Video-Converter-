@@ -116,6 +116,39 @@ TXT = {
     }
 }
 
+# First phase: centralized multilingual UI labels.
+# Unsupported keys fall back to English rather than displaying raw translation IDs.
+TXT["id"] = {
+    "app": "Konverter Audio Video ATRAC & Editor Tag",
+    "audio_studio": "Studio Audio",
+    "home": "⌂  Beranda", "convert": "♫  Konversi",
+    "tags": "◇  Edit Tag", "batch": "▣  Edit Massal  Ctrl+K",
+    "youtube": "▶  Unduh YouTube", "tiktok": "♪  Unduh TikTok",
+    "player": "▶  Pemutar Media", "music_match": "♪  Cocokkan Musik",
+    "formats": "Format yang didukung", "light": "Mode terang",
+    "dark": "Mode gelap", "language": "Bahasa",
+    "audio_convert": "Konverter Audio", "remove": "Hapus Pilihan",
+    "clear": "Hapus Semua", "output": "Keluaran",
+    "bitrate": "Bitrate", "start": "Mulai Konversi",
+    "choose": "Pilih File", "save": "Simpan  Ctrl+S",
+    "title": "Judul", "artist": "Artis", "album": "Album",
+    "track": "Trek", "cover": "Sampul", "folder": "Folder Keluaran",
+    "download": "Mulai Unduh", "youtube_title": "Unduh YouTube",
+    "tiktok_title": "Unduh TikTok", "youtube_hint": "Masukkan satu URL YouTube per baris",
+    "tiktok_hint": "Masukkan satu URL TikTok per baris",
+    "rights": "Simpan hanya video milik Anda atau yang diizinkan.",
+    "need_files": "Tambahkan file terlebih dahulu.",
+    "ffmpeg": "FFmpeg tidak ditemukan.",
+    "ffprobe": "ffprobe tidak ditemukan.",
+    "converted": "Konversi selesai!",
+    "tag_saved": "Tag berhasil disimpan.",
+    "need_url": "Masukkan URL.", "downloaded": "Unduhan selesai!",
+    "batch_done": "Pengeditan massal selesai!",
+    "dl_ready": "Siap", "dl_speed": "Kecepatan",
+    "dl_eta": "Perkiraan waktu", "dl_progress": "Progres",
+    "video_quality": "Kualitas Video", "audio_quality": "Kualitas Audio"
+}
+
 def app_dir():
     return os.path.dirname(os.path.abspath(sys.argv[0]))
 
@@ -556,7 +589,7 @@ class App:
         except: pass
 
         self.theme="dark"
-        self.lang="ja"
+        self.lang="ja"  # Default; can be changed to English or Indonesian
         self.files=[]
         self.car_at3_files=[]
         self.car_at3_outfmt=tk.StringVar(value="MP3")
@@ -765,7 +798,7 @@ class App:
         except Exception:return None
 
     def p(self): return DARK if self.theme=="dark" else LIGHT
-    def tr(self,k): return TXT[self.lang].get(k,k)
+    def tr(self,k): return TXT.get(self.lang, TXT["en"]).get(k, TXT["en"].get(k, k))
 
     def clear_content(self):
         for w in self.content.winfo_children():
@@ -851,7 +884,7 @@ class App:
         settings=tk.Frame(self.sidebar,bg=p["panel"])
         settings.pack(fill="x",padx=12,pady=(0,10))
         theme_text="☀ LIGHT" if self.theme=="dark" else "● DARK"
-        lang_text="ENGLISH" if self.lang=="ja" else "日本語"
+        lang_text={"ja": "ENGLISH", "en": "INDONESIA", "id": "日本語"}.get(self.lang, "日本語")
         tb=tk.Button(settings,text=theme_text,command=self.toggle_theme,
                      bg=p["panel2"],fg=p["text"],activebackground=p["accent"],
                      activeforeground="white",relief="flat",bd=0,cursor="hand2",
@@ -915,7 +948,7 @@ class App:
 
         top_lang=tk.Button(
             self.topbar,
-            text=("ENGLISH" if self.lang=="ja" else "日本語"),
+            text={"ja": "ENGLISH", "en": "INDONESIA", "id": "日本語"}.get(self.lang, "日本語"),
             command=self.toggle_language,
             bg=p["panel2"],fg=p["text"],
             activebackground=p["accent"],activeforeground="white",
@@ -957,7 +990,7 @@ class App:
         self._deferred_rebuild(getattr(self,"current_page","home"))
 
     def toggle_language(self):
-        self.lang="en" if self.lang=="ja" else "ja"
+        self.lang={"ja": "en", "en": "id", "id": "ja"}.get(self.lang, "ja")
         self._deferred_rebuild(getattr(self,"current_page","home"))
 
     def highlight(self,key):
